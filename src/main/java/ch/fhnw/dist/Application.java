@@ -29,7 +29,7 @@ public class Application {
 
         for(String existingWord : existingWordList) {
             if(!bloomFilter.contains(existingWord)) {
-                throw new IllegalStateException("An existing word CANNOT be detected as non-existing!");
+                throw new IllegalStateException("An existing word SHALL NEVER be detected as non-existing!");
             }
         }
 
