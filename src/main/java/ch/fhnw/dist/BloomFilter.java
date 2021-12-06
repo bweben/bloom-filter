@@ -8,10 +8,10 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class BloomFilter implements Collection<String> {
-    private int nElements;
-    private double pErrorProbability;
+    private final int nElements;
+    private final double pErrorProbability;
 
-    private byte[] filter;
+    private boolean[] filter;
     private int hashFunctionSize;
 
     private int size;
@@ -20,31 +20,21 @@ public class BloomFilter implements Collection<String> {
         this.nElements = nElements;
         this.pErrorProbability = pErrorProbability;
 
-        generateFilter();
+        initializeFilter();
     }
 
-    private void generateFilter() {
+    private void initializeFilter() {
         size = 0;
 
         int filterSize = (int) -Math.ceil((nElements * Math.log(pErrorProbability)) / Math.pow(Math.log(2), 2));
-        hashFunctionSize = (int) Math.ceil((filterSize / nElements) * Math.log(2));
+        this.hashFunctionSize = (int) Math.ceil((filterSize / (double)nElements) * Math.log(2));
 
-        filter = new byte[filterSize];
-        Arrays.fill(filter, (byte) 0);
+        filter = new boolean[filterSize];
+        Arrays.fill(filter, false);
     }
 
-    private byte[] hash(int seed, byte[] toHash) {
-        return Hashing.murmur3_128(seed).hashBytes(toHash).asBytes();
-    }
-
-    private byte[] hashMultiple(String toHash) {
-        byte[] hash = toHash.getBytes(StandardCharsets.UTF_8);
-
-        for (int i = 0; i < hashFunctionSize; i++) {
-            hash = hash(i, hash);
-        }
-
-        return hash;
+    private long hash(int seed, String toHash) {
+        return Math.abs(Hashing.murmur3_128(seed).hashString(toHash, StandardCharsets.UTF_8).asLong());
     }
 
     @Override
@@ -59,10 +49,13 @@ public class BloomFilter implements Collection<String> {
 
     @Override
     public boolean contains(Object o) {
-        byte[] hash = hashMultiple((String) o);
+        if(!(o instanceof String)) {
+            return false;
+        }
 
-        for (int i = 0; i < hash.length; i++) {
-            if (filter[i] == 0) {
+        for (int i = 0; i < hashFunctionSize; i++) {
+            int hash = (int) (hash(i, (String)o) % filter.length);
+            if(!filter[hash]) {
                 return false;
             }
         }
@@ -88,10 +81,10 @@ public class BloomFilter implements Collection<String> {
     @Override
     public boolean add(String s) {
         ++size;
-        byte[] hash = hashMultiple(s);
 
-        for (int i = 0; i < hash.length; i++) {
-            filter[i] = 1;
+        for (int i = 0; i < hashFunctionSize; i++) {
+            int hash = (int) (hash(i, s) % filter.length);
+            filter[hash] = true;
         }
 
         return true;
@@ -125,6 +118,18 @@ public class BloomFilter implements Collection<String> {
 
     @Override
     public void clear() {
-        generateFilter();
+        initializeFilter();
+    }
+
+    public int getNumberOfElements() {
+        return nElements;
+    }
+
+    public double getAcceptedErrorProbability() {
+        return pErrorProbability;
+    }
+
+    public int getHashFunctionSize() {
+        return hashFunctionSize;
     }
 }
