@@ -44,6 +44,7 @@ public class Application {
         System.out.format("Number of elements in filter:              %d %n", bloomFilter.getNumberOfElements());
         System.out.format("Calibrated probability of false positives: %f %n", bloomFilter.getAcceptedErrorProbability());
         System.out.format("Amount of hash functions:                  %d %n", bloomFilter.getHashFunctionSize());
+        System.out.format("Filter size:                               %d %n", bloomFilter.getFilterSize());
         System.out.format("-----------------------------------------------%n%n");
         System.out.format("------------------ RESULTS ------------------- %n");
         System.out.format("Number of false positives:                 %d %n", numOfFalsePositives);

@@ -132,4 +132,9 @@ public class BloomFilter implements Collection<String> {
     public int getHashFunctionSize() {
         return hashFunctionSize;
     }
+
+    public int getFilterSize() {
+        return this.filter.length;
+    }
+
 }
