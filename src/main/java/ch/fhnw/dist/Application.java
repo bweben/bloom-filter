@@ -19,6 +19,11 @@ public class Application {
         new Application().run(pErrorProbability);
     }
 
+    /**
+     * Run the main program with a given probability
+     * @param pErrorProbability
+     * @throws IOException
+     */
     private void run(double pErrorProbability) throws IOException {
         List<String> existingWordList = Files.readAllLines(new File(getClass().getResource("/words.txt").getFile()).toPath());
         List<String> notExistingWordList  = existingWordList.stream().map(this::rotate2).collect(Collectors.toList());
